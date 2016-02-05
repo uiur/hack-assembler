@@ -28,14 +28,14 @@ func TestMain(t *testing.T) {
 			t.Error(err)
 		}
 
-		actual, err := exec.Command("go", "run", "main.go", "instruction.go", file).Output()
+		actual, err := exec.Command("go", "run", "main.go", file).Output()
 
 		if err != nil {
 			t.Error(err)
 		}
 
 		if string(actual) != string(expected) {
-			t.Errorf("expect:\n%s\nactual:\n%s", string(expected), string(actual))
+			t.Errorf("%s\nexpect:\n%s\nactual:\n%s", name, string(expected), string(actual))
 		}
 	}
 }

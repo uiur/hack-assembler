@@ -1,8 +1,8 @@
-package main
+package instruction
 
 import (
 	"fmt"
-	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -13,13 +13,7 @@ type Instruction struct {
 
 func (inst *Instruction) Code() string {
 	if inst.CommandType == "a" {
-		value, err := strconv.Atoi(inst.Symbol)
-
-		if err != nil {
-			os.Exit(1)
-		}
-
-		return fmt.Sprintf("0%015b", value)
+		return fmt.Sprintf("0%015b", symbolToInt(inst.Symbol))
 	} else if inst.CommandType == "c" {
 		comp := compToCode(inst.Comp)
 
@@ -32,6 +26,40 @@ func (inst *Instruction) Code() string {
 	}
 
 	return ""
+}
+
+func symbolToInt(str string) int {
+	value, err := strconv.Atoi(str)
+
+	if err == nil {
+		return value
+	}
+
+	r := regexp.MustCompile(`^R(\d+)$`)
+	matches := r.FindStringSubmatch(str)
+	if len(matches) > 0 {
+		number, _ := strconv.Atoi(matches[1])
+		return number
+	}
+
+	switch str {
+	case "SP":
+		return 0
+	case "LCL":
+		return 1
+	case "ARG":
+		return 2
+	case "THIS":
+		return 3
+	case "THAT":
+		return 4
+	case "SCREEN":
+		return 16384
+	case "KBD":
+		return 24576
+	}
+
+	return 0
 }
 
 func compToCode(comp string) string {
