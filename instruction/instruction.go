@@ -88,7 +88,7 @@ func compToCCode(comp string) string {
 	case "1":
 		return "111111"
 	case "-1":
-		return "1110010"
+		return "111010"
 	case "D":
 		return "001100"
 	case "A", "M":
