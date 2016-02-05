@@ -55,28 +55,29 @@ func (p *Parser) findSymbols(insts []*inst.Instruction) map[string]int {
 	symbols := map[string]int{}
 
 	total := 0
-	totalVar := 0
 	for _, inst := range insts {
 		if inst.CommandType == "l" {
 			symbols[inst.Symbol] = total
 			continue
 		}
+		total++
+	}
 
+	totalVar := 0
+	for _, inst := range insts {
 		if inst.CommandType == "a" && symbolIsVariable(inst.Symbol) {
 			if symbols[inst.Symbol] == 0 {
 				symbols[inst.Symbol] = 16 + totalVar
 				totalVar++
 			}
 		}
-
-		total++
 	}
 
 	return symbols
 }
 
 func symbolIsVariable(symbol string) bool {
-	return regexp.MustCompile(`^[a-z][0-9a-z_]+$`).MatchString(symbol)
+	return regexp.MustCompile(`^[a-z_\.\$:][0-9a-z_\.\$:]+$`).MatchString(symbol)
 }
 
 func (p *Parser) Generate(insts []*inst.Instruction) string {
