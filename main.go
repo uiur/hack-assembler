@@ -19,6 +19,9 @@ func main() {
 		}
 
 		p := new(p.Parser)
-		p.Parse(string(data))
+		insts := p.Parse(string(data))
+		p.AssignSymbols(insts)
+
+		fmt.Print(p.Generate(insts))
 	}
 }

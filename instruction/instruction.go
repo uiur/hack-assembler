@@ -11,9 +11,9 @@ type Instruction struct {
 	CommandType, Symbol, Dest, Comp, Jump string
 }
 
-func (inst *Instruction) Code() string {
+func (inst *Instruction) Code(symbols map[string]int) string {
 	if inst.CommandType == "a" {
-		return fmt.Sprintf("0%015b", symbolToInt(inst.Symbol))
+		return fmt.Sprintf("0%015b", symbolToInt(inst.Symbol, symbols))
 	} else if inst.CommandType == "c" {
 		comp := compToCode(inst.Comp)
 
@@ -22,13 +22,13 @@ func (inst *Instruction) Code() string {
 		m := strings.Contains(inst.Dest, "M")
 		dest := fmt.Sprintf("%b%b%b", btoi(a), btoi(d), btoi(m))
 
-		return fmt.Sprintf("111%07s%s%03s", comp, dest, inst.Jump)
+		return fmt.Sprintf("111%07s%s%03s", comp, dest, jumpToCode(inst.Jump))
 	}
 
 	return ""
 }
 
-func symbolToInt(str string) int {
+func symbolToInt(str string, symbols map[string]int) int {
 	value, err := strconv.Atoi(str)
 
 	if err == nil {
@@ -59,12 +59,26 @@ func symbolToInt(str string) int {
 		return 24576
 	}
 
-	return 0
+	return symbols[str]
 }
 
 func compToCode(comp string) string {
 	a := btoi(strings.Contains(comp, "M"))
 	return fmt.Sprintf("%b%s", a, compToCCode(comp))
+}
+
+var jumpTable = map[string]string{
+	"JGT": "001",
+	"JEQ": "010",
+	"JGE": "011",
+	"JLT": "100",
+	"JNE": "101",
+	"JLE": "110",
+	"JMP": "111",
+}
+
+func jumpToCode(jump string) string {
+	return jumpTable[jump]
 }
 
 func compToCCode(comp string) string {
