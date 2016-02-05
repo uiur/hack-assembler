@@ -7,13 +7,9 @@ import (
 	inst "github.com/uiureo/hack-assembler/instruction"
 )
 
-type Parser struct {
-	symbols map[string]int
-}
+type Parser struct{}
 
 func (p *Parser) Parse(str string) []*inst.Instruction {
-	p.symbols = map[string]int{}
-
 	var lines []string
 	for _, line := range strings.Split(str, "\n") {
 		trimmedLine := removeComment(strings.TrimSpace(line))
@@ -55,27 +51,29 @@ func (p *Parser) Parse(str string) []*inst.Instruction {
 	return insts
 }
 
-func (p *Parser) AssignSymbols(insts []*inst.Instruction) {
-	p.symbols = map[string]int{}
+func (p *Parser) findSymbols(insts []*inst.Instruction) map[string]int {
+	symbols := map[string]int{}
 
 	total := 0
 	for _, inst := range insts {
 		if inst.CommandType == "l" {
-			p.symbols[inst.Symbol] = total
+			symbols[inst.Symbol] = total
 			continue
 		}
 
 		total++
 	}
 
-	// fmt.Println(p.symbols)
+	return symbols
 }
 
 func (p *Parser) Generate(insts []*inst.Instruction) string {
+	symbols := p.findSymbols(insts)
+
 	var str string
 
 	for _, inst := range insts {
-		code := inst.Code(p.symbols)
+		code := inst.Code(symbols)
 
 		if len(code) > 0 {
 			str += code + "\n"
